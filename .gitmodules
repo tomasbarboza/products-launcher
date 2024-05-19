@@ -1,0 +1,9 @@
+[submodule "client-gateway"]
+	path = client-gateway
+	url = git@github.com:tomasbarboza/client-gateway.git
+[submodule "ms-orders"]
+	path = ms-orders
+	url = git@github.com:tomasbarboza/ms-orders.git
+[submodule "ms-products"]
+	path = ms-products
+	url = git@github.com:tomasbarboza/ms-products.git
