@@ -1,0 +1,57 @@
+version: '3.9'
+
+services:
+
+  nats_server:
+    image: nats:2.10.14-alpine3.19
+    ports:
+      - "8222:8222"
+
+  client-gateway:
+    build: ./client-gateway
+    ports: 
+      - "${CLIENT_GATEWAY_PORT}:3000"
+    volumes:
+      - ./client-gateway/src:/usr/src/app/src
+    command: yarn start:dev
+    environment:
+      - PORT=${CLIENT_GATEWAY_PORT}
+      - NATS_SERVERS=${NATS_SERVER_URL}
+
+  ms-products:
+    build: ./ms-products
+    volumes:
+      - ./ms-products/src:/usr/src/app/src
+    command: yarn start:dev
+    environment:
+      - PORT=${MS_PRODUCTS_PORT}
+      - NATS_SERVERS=${NATS_SERVER_URL}
+      - DATABASE_URL=file:./dev.db
+  
+  ms-orders:
+    depends_on:
+      - orders-db-dev
+    build: ./ms-orders
+    volumes:
+      - ./ms-orders/src:/usr/src/app/src
+    command: yarn start:dev
+    environment:
+      - PORT=${MS_ORDERS_PORT}
+      - NATS_SERVERS=${NATS_SERVER_URL}
+      - DATABASE_URL=${ORDERS_DB_POSTGRES_URL}
+    
+  orders-db-dev:
+    image: postgres:16.2
+    restart: always
+    volumes:
+      - ./ms-orders/postgres-data:/var/lib/postgresql/data
+    ports:
+      - ${ORDERS_DB_POSTGRES_PORT}:5432
+    environment:
+      POSTGRES_USER: ${ORDERS_DB_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${ORDERS_DB_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${ORDERS_DB_POSTGRES_DB}
+
+
+    
+      
