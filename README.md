@@ -51,3 +51,16 @@ git submodule update --remote
 Si se trabaja en el repositorio que tiene los sub-módulos, **primero actualizar y hacer push** en el sub-módulo y **después** en el repositorio principal.
 
 Si se hace al revés, se perderán las referencias de los sub-módulos en el repositorio principal y tendremos que resolver conflictos.
+
+
+## COMO HACER QUE FUNCIONE EL WEBHOOK DE STRIPE
+
+1. Instalar el CLI de Hookdeck
+2. Crear un nuevo proyecto en Hookdeck
+3. Crear un nuevo webhook en Stripe y copiar la URL que te da Hookdeck
+4. Correr el siguiente comando en la terminal
+
+```shell
+hookdeck listen 3003 stripe-to-localhost
+```
+

@@ -7,3 +7,9 @@
 [submodule "ms-products"]
 	path = ms-products
 	url = git@github.com:tomasbarboza/ms-products.git
+[submodule "ms-payments"]
+	path = ms-payments
+	url = git@github.com:tomasbarboza/ms-payment.git
+[submodule "ms-auth"]
+	path = ms-auth
+	url = https://github.com/tomasbarboza/ms-auth.git

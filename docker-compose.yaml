@@ -8,6 +8,7 @@ services:
       - "8222:8222"
 
   client-gateway:
+    container_name: api-gateway
     build: ./client-gateway
     ports: 
       - "${CLIENT_GATEWAY_PORT}:3000"
@@ -18,7 +19,20 @@ services:
       - PORT=${CLIENT_GATEWAY_PORT}
       - NATS_SERVERS=${NATS_SERVER_URL}
 
+  ms-auth:
+    container_name: ms-auth
+    build: ./ms-auth
+    volumes:
+      - ./ms-auth/src:/usr/src/app/src
+    command: yarn start:dev
+    environment:
+      - PORT=${MS_AUTH_PORT}
+      - NATS_SERVERS=${NATS_SERVER_URL}
+      - DATABASE_URL=${AUTH_DB_MONGO_URL}
+      - JWT_SECRET=${MS_AUTH_JWT_SECRET}
+
   ms-products:
+    container_name: ms-products
     build: ./ms-products
     volumes:
       - ./ms-products/src:/usr/src/app/src
@@ -29,6 +43,7 @@ services:
       - DATABASE_URL=file:./dev.db
   
   ms-orders:
+    container_name: ms-orders
     depends_on:
       - orders-db-dev
     build: ./ms-orders
@@ -39,6 +54,22 @@ services:
       - PORT=${MS_ORDERS_PORT}
       - NATS_SERVERS=${NATS_SERVER_URL}
       - DATABASE_URL=${ORDERS_DB_POSTGRES_URL}
+
+  ms-payments:
+    container_name: ms-payments
+    build: ./ms-payments
+    volumes:
+      - ./ms-payments/src:/usr/src/app/src
+    command: yarn start:dev
+    ports:
+      - ${MS_PAYMENTS_PORT}:${MS_PAYMENTS_PORT}
+    environment:
+      - PORT=${MS_PAYMENTS_PORT}
+      - NATS_SERVERS=${NATS_SERVER_URL}
+      - STRIPE_ENDPOINT_SECRET=${STRIPE_ENDPOINT_SECRET}
+      - STRIPE_SECRET=${STRIPE_SECRET}
+      - STRIPE_SUCCESS_URL=${STRIPE_SUCCESS_URL}
+      - STRIPE_CANCEL_URL=${STRIPE_CANCEL_URL}
     
   orders-db-dev:
     image: postgres:16.2
