@@ -1,0 +1,80 @@
+version: '3.9'
+
+services:
+
+  client-gateway:
+    container_name: api-gateway
+    image: southamerica-west1-docker.pkg.dev/tienda-microservices-429001/image-registry/client-gateway
+    build: 
+      context: ./client-gateway
+      dockerfile: dockerfile.prod
+    ports: 
+      - "${CLIENT_GATEWAY_PORT}:${CLIENT_GATEWAY_PORT}"
+    environment:
+      - PORT=${CLIENT_GATEWAY_PORT}
+      - NATS_SERVERS=${NATS_SERVER_URL}
+
+  nats_server:
+    image: nats:2.10.14-alpine3.19
+    ports:
+      - "8222:8222"
+
+  ms-auth:
+    container_name: ms-auth
+    image: southamerica-west1-docker.pkg.dev/tienda-microservices-429001/image-registry/auth-ms
+    build: 
+      context: ./ms-auth
+      dockerfile: dockerfile.prod
+    environment:
+      - PORT=${MS_AUTH_PORT}
+      - NATS_SERVERS=${NATS_SERVER_URL}
+      - DATABASE_URL=${AUTH_DB_MONGO_URL}
+      - JWT_SECRET=${MS_AUTH_JWT_SECRET}
+
+  ms-products:
+    container_name: ms-products
+    image: southamerica-west1-docker.pkg.dev/tienda-microservices-429001/image-registry/products-ms
+    build: 
+      context: ./ms-products
+      dockerfile: dockerfile.prod
+      args:
+      - PRODUCTS_DB_POSTGRES_URL=file:./dev.db
+    environment:
+      - PORT=${MS_PRODUCTS_PORT}
+      - NATS_SERVERS=${NATS_SERVER_URL}
+      - DATABASE_URL=file:./dev.db
+  
+  ms-orders:
+    container_name: ms-orders
+    image: southamerica-west1-docker.pkg.dev/tienda-microservices-429001/image-registry/orders-ms
+    build: 
+      context: ./ms-orders
+      dockerfile: dockerfile.prod
+      args:
+      - MS_ORDERS_PORT=${MS_ORDERS_PORT}
+      - NATS_SERVER_URL=${NATS_SERVER_URL}
+      - ORDERS_DB_POSTGRES_URL=${ORDERS_DB_POSTGRES_URL}
+    environment:
+      - PORT=${MS_ORDERS_PORT}
+      - NATS_SERVERS=${NATS_SERVER_URL}
+      - DATABASE_URL=${ORDERS_DB_POSTGRES_URL}
+
+  ms-payments:
+    container_name: ms-payments
+    image: southamerica-west1-docker.pkg.dev/tienda-microservices-429001/image-registry/payments-ms
+    build: 
+      context: ./ms-payments
+      dockerfile: dockerfile.prod
+    ports:
+      - ${MS_PAYMENTS_PORT}:${MS_PAYMENTS_PORT}
+    environment:
+      - PORT=${MS_PAYMENTS_PORT}
+      - NATS_SERVERS=${NATS_SERVER_URL}
+      - STRIPE_ENDPOINT_SECRET=${STRIPE_ENDPOINT_SECRET}
+      - STRIPE_SECRET=${STRIPE_SECRET}
+      - STRIPE_SUCCESS_URL=${STRIPE_SUCCESS_URL}
+      - STRIPE_CANCEL_URL=${STRIPE_CANCEL_URL}
+    
+
+    
+      

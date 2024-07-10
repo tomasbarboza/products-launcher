@@ -64,3 +64,12 @@ Si se hace al revés, se perderán las referencias de los sub-módulos en el rep
 hookdeck listen 3003 stripe-to-localhost
 ```
 
+## Prod
+
+1. Crear un archivo `.env` basado en el archivo `.env.example`
+2. Correr docker compose
+
+```shell
+docker compose -f docker-compose.prod.yml up --build
+```
+
